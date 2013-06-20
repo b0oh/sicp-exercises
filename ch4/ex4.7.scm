@@ -32,4 +32,4 @@
           (if (last-exp? assignments)
               (cons 'let (cons assignment body))
               (cons 'let (list assignment (iter (rest-exps assignments))))))))
-  (iter (let-vars exp)))
+  (iter (let-assignments exp)))

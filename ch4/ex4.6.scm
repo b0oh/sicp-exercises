@@ -20,12 +20,16 @@
 
 (load "interp.scm")
 
-(define (let-vars exp) (cadr exp))
-(define (let-var-name exp) (car exp))
-(define (let-var-value exp) (cadr exp))
+(define (let-assignments exp) (cadr exp))
+(define (let-assignment-name exp) (car exp))
+(define (let-assignment-value exp) (cadr exp))
 (define (let-body exp) (cddr exp))
 
+(define (let-assignment-names assignments) (map let-assignment-name assignments))
+(define (let-assignment-values assignments) (map let-assignment-value assignments))
+
 (define (let->combination exp)
-  (cons (make-lambda (map let-var-name (let-vars exp))
+  (define assignments (let-assignments exp))
+  (cons (make-lambda (let-assignment-names assignments)
                      (let-body exp))
-        (map let-var-value (let-vars exp))))
+        (let-assignment-values assignments)))
