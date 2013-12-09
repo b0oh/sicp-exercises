@@ -22,6 +22,7 @@
 
 ;; Modify let->combination of exercise 4.6 to also support named let.
 
+(load "tests.scm")
 (load "ex4.6.scm")
 
 (define (named-let? exp)
@@ -48,3 +49,17 @@
         (cons (make-lambda (let-assignment-names assignments)
                            (let-body exp))
               (let-assignment-values assignments)))))
+
+(define (ex4.8-tests)
+  (describe "named let")
+  (assert (eval '(begin
+                   (define (fib n)
+                     (let fib-iter ((a 1)
+                                    (b 0)
+                                    (count n))
+                       (if (= count 0)
+                           b
+                           (fib-iter (+ a b) a (- count 1)))))
+                   (fib 12))
+                (setup-environment))
+          144))

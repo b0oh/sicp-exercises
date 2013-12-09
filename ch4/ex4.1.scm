@@ -14,7 +14,6 @@
 ;; Also write a version of list-of-values that evaluates operands from
 ;; right to left.
 
-
 (load "interp.scm")
 
 (define (list-of-values-ltr exps env)

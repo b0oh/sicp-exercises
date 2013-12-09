@@ -14,8 +14,8 @@
 ;; returns 2.
 ;; Modify the handling of cond so that it supports this extended syntax.
 
+(load "tests.scm")
 (load "interp.scm")
-
 
 (define (cond-extended-clause? clause)
   (eq? '=> (car (cond-actions clause))))
@@ -42,3 +42,21 @@
                           (sequence->exp (cond-actions first))
                           (expand-clauses rest)))))))
   (expand-clauses (cond-clauses exp)))
+
+(define (ex4.5-tests)
+  (define env (setup-environment))
+  (describe "extended cond")
+
+  (assert (eval '(cond (true 1))           env) 1)
+  (assert (eval '(cond (false 1) (else 2)) env) 2)
+  (assert (eval '(cond (false 1) (true 2)) env) 2)
+  (assert (eval '(cond (false 1))          env) false)
+  (assert (eval '(cond (true 1 2 3))       env) 3)
+  (assert (eval '(begin
+                   (define (assoc key alist)
+                     (cond ((null? alist) false)
+                           ((eq? key (car (car alist))) (car alist))
+                           (else (assoc key (cdr alist)))))
+                   (cond ((assoc 'b '((a 1) (b 2))) => cadr)))
+                env)
+          2))

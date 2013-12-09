@@ -20,6 +20,8 @@
 
 (load "interp.scm")
 
+(define (let? exp) (tagged-list? exp 'let))
+
 (define (let-assignments exp) (cadr exp))
 (define (let-assignment-name exp) (car exp))
 (define (let-assignment-value exp) (cadr exp))
@@ -33,3 +35,24 @@
   (cons (make-lambda (let-assignment-names assignments)
                      (let-body exp))
         (let-assignment-values assignments)))
+
+
+(define (eval exp env)
+  (cond ((self-evaluating? exp) exp)
+        ((variable? exp) (lookup-variable-value exp env))
+        ((quoted? exp) (text-of-quotation exp))
+        ((assignment? exp) (eval-assignment exp env))
+        ((definition? exp) (eval-definition exp env))
+        ((lambda? exp)
+         (make-procedure (lambda-parameters exp)
+                         (lambda-body exp)
+                         env))
+        ((let? exp) (eval (let->combination exp) env))
+        ((begin? exp) (eval-sequence (begin-actions exp) env))
+        ((if? exp) (eval-if exp env))
+        ((cond? exp) (eval (cond->if exp) env))
+        ((application? exp)
+         (apply (eval (operator exp) env)
+                (list-of-values (operands exp) env)))
+        (else
+         (error "Unknown expression type -- EVAL" exp))))

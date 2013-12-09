@@ -21,6 +21,7 @@
 
 ;; or must we explicitly expand let* in terms of non-derived expressions?
 
+(load "tests.scm")
 (load "ex4.6.scm")
 
 (define (let*->nested-lets exp)
@@ -33,3 +34,12 @@
               (cons 'let (cons assignment body))
               (cons 'let (list assignment (iter (rest-exps assignments))))))))
   (iter (let-assignments exp)))
+
+(define (ex4.7-tests)
+  (describe "nested let")
+  (assert (eval (let*->nested-lets '(let* ((x 3)
+                                           (y (+ x 2))
+                                           (z (+ x y 5)))
+                                      (* x z)))
+                (setup-environment))
+          39))

@@ -17,6 +17,7 @@
 ;; have to write (call factorial 3) and instead of (+ 1 2) we will have
 ;; to write (call + 1 2).
 
+(load "tests.scm")
 (load "interp.scm")
 
 (define (application? exp) (tagged-list? exp 'call))
@@ -25,11 +26,11 @@
 
 (define (eval exp env)
   (cond ((self-evaluating? exp) exp)
+        ((variable? exp) (lookup-variable-value exp env))
+        ((quoted? exp) (text-of-quotation exp))
         ((application? exp)
          (apply (eval (operator exp) env)
                 (list-of-values (operands exp) env)))
-        ((variable? exp) (lookup-variable-value exp env))
-        ((quoted? exp) (text-of-quotation exp))
         ((assignment? exp) (eval-assignment exp env))
         ((definition? exp) (eval-definition exp env))
         ((lambda? exp)
@@ -41,3 +42,15 @@
         ((cond? exp) (eval (cond->if exp) env))
         (else
          (error "Unknown expression type -- EVAL" exp))))
+
+(define (ex4.2-tests)
+  (describe "call as special form")
+
+  (assert (eval '(begin (define (dec x)
+                          (call - x 1))
+                        (define (fac x)
+                          (if (call = x 1)
+                              1
+                              (call * (call fac (call dec x)) x)))
+                        (call fac 6)) (setup-environment))
+            720))
